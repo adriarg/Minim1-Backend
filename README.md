@@ -1,8 +1,7 @@
 # README: Sistema de Valoracions de Confiança (Backend)
 
 ## Descripció
-Aquest mòdul implementa un sistema complet de valoracions de confiança entre usuaris per a l'aplicació Skynet. Permet als usuaris qualificar a altres mitjançant puntuacions i comentaris, mostrant el promig de valoració al perfil de cada usuari.
-
+Aquest mòdul implementa un sistema complet de valoracions de confiança entre usuaris per a l'aplicació Skynet. Permet als usuaris qualificar a altres mitjançant puntuacions i comentaris, mostrant el promig de valoració al perfil de cada usuari. A continuació intento explicar les coses implementades i al final una possible problemàtica.
 
 ## Requisits implementats
 
@@ -49,29 +48,10 @@ Aquest mòdul implementa un sistema complet de valoracions de confiança entre u
 ## Punts importants d'implementació
 
 ### Càlcul automàtic de valoració mitjana
-Quan s'afegeix, actualitza o elimina una valoració, es recalcula automàticament la valoració mitjana de l'usuari:
-
-```typescript
-const ratingAvg = ratingSum / allRatings.length;
-await User.updateOne(
-    { _id: userId },
-    { 
-        trustRatingAvg: parseFloat(ratingAvg.toFixed(2)),
-        trustRatingCount: allRatings.length
-    }
-);
-```
+Quan s'afegeix, actualitza o elimina una valoració, es recalcula automàticament la valoració mitjana de l'usuari.
 
 ### Paginació
-Totes les consultes que retornen llistes implementen paginació amb els paràmetres `page` i `limit`:
-
-```typescript
-const skip = (page - 1) * limit;
-const ratings = await TrustRating.find({ /* ... */ })
-    .sort({ createdAt: -1 })
-    .skip(skip)
-    .limit(limit);
-```
+Totes les consultes que retornen llistes implementen paginació amb els paràmetres `page` i `limit`.
 
 ## Notes addicionals
 - El sistema no requereix identificar qui fa la valoració, només a qui se li fa
@@ -79,6 +59,4 @@ const ratings = await TrustRating.find({ /* ... */ })
 - El sistema utilitza logs detallats per facilitar la depuració
 - S'ha implementat un sistema robust de gestió d'errors
 
----
-
-Desenvolupat per a l'examen de Minim 1 de EA (EETAC-UPC)
+Aquests son els comentaris del Minim1, en principi cumpleixo tots els requeriments, pero hi ha algunes coses com l'update de la mitjana de les estrelles que no s'acaba de fer automàticament.
