@@ -21,11 +21,19 @@ export const createUser = async (userData: IUser) => {
 
 export const getAllUsers = async (page: number, limit: number) => {
     const skip = (page - 1) * limit;
-    return await User.find({ isDeleted: false }).skip(skip).limit(limit);
+    return await User.find(
+        { isDeleted: false }, 
+        { password: 0 } // Solo excluimos el password
+    )
+    .skip(skip)
+    .limit(limit);
 };
 
 export const getUserById = async (id: string) => {
-    return await User.findOne({ _id: id, isDeleted: false });
+    return await User.findOne(
+        { _id: id, isDeleted: false },
+        { password: 0 } // Solo excluimos el password
+    );
 };
 
 export const updateUser = async (id: string, updateData: Partial<IUser>) => {

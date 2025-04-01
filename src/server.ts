@@ -6,6 +6,7 @@ import forumRoutes from './routes/forum_routes.js'; // Nota el .js al final
 import droneRoutes from './routes/drone_routes.js'; // Nota el .js al final
 import gameRoutes from './routes/game_routes.js';
 //import messageRoutes from './routes/message_routes.js'
+import trustRatingRoutes from './routes/trust_rating_routes.js'; // Importamos las nuevas rutas
 import { corsHandler } from './middleware/corsHandler.js';
 import { loggingHandler } from './middleware/loggingHandler.js';
 import { routeNotFound } from './middleware/routeNotFound.js';
@@ -61,6 +62,10 @@ const swaggerOptions = {
             { 
                 name: 'Juegos', 
                 description: 'Juegos entre usuarios' ,
+            },
+            { 
+                name: 'TrustRatings', 
+                description: 'Valoraciones de confianza de usuarios' ,
             }
           ],
         servers: [
@@ -86,6 +91,7 @@ app.use('/api', userRoutes);
 app.use('/api', forumRoutes);
 app.use('/api', droneRoutes);
 app.use('/api', gameRoutes);
+app.use('/api', trustRatingRoutes); // Añadimos las nuevas rutas
 
 // Rutes de prova
 app.get('/', (req, res) => {

@@ -11,7 +11,9 @@ const userSchema = new mongoose.Schema({
     role: { type : String,
             enum : ['Administrador', 'Usuario', 'Empresa', 'Gobierno'],
             required : true
-    }
+    },
+    trustRatingAvg: { type: Number, default: 0 }, // Valoración promedio de confianza
+    trustRatingCount: { type: Number, default: 0 } // Contador de valoraciones recibidas
 });
 
 // Encriptar la contraseña antes de guardar con un middleware 
@@ -41,6 +43,8 @@ export interface IUser{
     //friends?: mongoose.Types.ObjectId[];
     isDeleted?: boolean;
     role: 'Administrador' | 'Usuario' | 'Empresa' | 'Gobierno';
+    trustRatingAvg?: number; // Valoración promedio de confianza
+    trustRatingCount?: number; // Contador de valoraciones recibidas
 }
 
 const User = mongoose.model('User', userSchema);

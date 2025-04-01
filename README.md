@@ -1,46 +1,84 @@
-# Prova API
+# README: Sistema de Valoracions de Confiança (Backend)
 
 ## Descripció
-Una API bàsica desenvolupada en Node.js amb TypeScript, utilitzant Express i Mongoose per a la gestió de dades en MongoDB. A més, s'inclou documentació amb Swagger.
+Aquest mòdul implementa un sistema complet de valoracions de confiança entre usuaris per a l'aplicació Skynet. Permet als usuaris qualificar a altres mitjançant puntuacions i comentaris, mostrant el promig de valoració al perfil de cada usuari.
 
-## Requisits previs
-Abans d'executar el projecte, assegura't de tenir instal·lat:
-- [Node.js](https://nodejs.org/)
-- [MongoDB](https://www.mongodb.com/)
 
-## Instal·lació
-Clona el repositori i executa la següent comanda per instal·lar les dependències:
+## Requisits implementats
 
-```sh
-npm install
+### MongoDB
+- **Nova col·lecció**: `trustratings` per emmagatzemar les valoracions de confiança
+- **Relació amb col·leccions existents**: Vinculació amb la col·lecció d'usuaris mitjançant el camp `userId`
+- **Tipus de dades**: 
+  - ObjectId (userId, fromUser, toUser)
+  - Number (rating, trustRatingAvg, trustRatingCount)
+  - String (comment)
+  - Date (createdAt)
+
+### Backend (Express, TypeScript, Node.js)
+- **Nous endpoints**: API RESTful completa per a gestionar valoracions
+- **Nou model**: `TrustRating` definit a `trust_rating_models.ts`
+- **Operacions CRUD**:
+  - **Create**: POST `/api/trust-ratings`
+  - **Read**: GET `/api/users/:userId/trust-ratings`
+  - **Update**: PUT `/api/trust-ratings/:id`
+  - **Delete**: DELETE `/api/trust-ratings/:id`
+- **Llistat paginat**: Tots els endpoints GET implementen paginació (1 element per pàgina per defecte)
+- **Cercador**: Funcionalitat implementada al servei `searchTrustRatings`
+- **Endpoint addicional**: GET `/api/users-with-ratings` per obtenir tots els usuaris amb les seves valoracions
+
+## Estructura del codi
+
+### Models
+- `trust_rating_models.ts`: Defineix l'esquema de la col·lecció a MongoDB i la interfície TypeScript
+
+### Serveis
+- `trust_rating_service.ts`: Implementa tota la lògica de negoci per a:
+  - Afegir valoracions
+  - Obtenir valoracions d'un usuari
+  - Actualitzar valoracions
+  - Eliminar valoracions
+  - Obtenir usuaris amb les seves valoracions
+
+### Controladors
+- `trust_rating_controller.ts`: Gestiona les peticions HTTP, valida dades i retorna respostes
+
+### Rutes
+- `trust_rating_routes.ts`: Defineix els endpoints de l'API i la documentació Swagger
+
+## Punts importants d'implementació
+
+### Càlcul automàtic de valoració mitjana
+Quan s'afegeix, actualitza o elimina una valoració, es recalcula automàticament la valoració mitjana de l'usuari:
+
+```typescript
+const ratingAvg = ratingSum / allRatings.length;
+await User.updateOne(
+    { _id: userId },
+    { 
+        trustRatingAvg: parseFloat(ratingAvg.toFixed(2)),
+        trustRatingCount: allRatings.length
+    }
+);
 ```
 
-## Configuració
-Crea un fitxer `.env` a la arrel del projecte i defineix les següents variables d'entorn//canviar les strings directament en el codi a les línies 16 (Port) i 69 (uri mongo) :
-```env
-MONGO_URI=mongodb://localhost:27017/la_teva_base_de_dades
-PORT=9000
+### Paginació
+Totes les consultes que retornen llistes implementen paginació amb els paràmetres `page` i `limit`:
+
+```typescript
+const skip = (page - 1) * limit;
+const ratings = await TrustRating.find({ /* ... */ })
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit);
 ```
 
-## Execució
-Per iniciar l'API (tsc + cd ./build + node server.js):
+## Notes addicionals
+- El sistema no requereix identificar qui fa la valoració, només a qui se li fa
+- Cada usuari pot rebre múltiples valoracions
+- El sistema utilitza logs detallats per facilitar la depuració
+- S'ha implementat un sistema robust de gestió d'errors
 
-```sh
-npm start
-```
+---
 
-## Documentació
-Swagger està disponible a:
-```
-http://localhost:9000/api-docs
-```
-
-## Dependències Principals
-- `dotenv`: Gestió de variables d'entorn.
-- `mongodb` i `mongoose`: Base de dades MongoDB.
-- `swagger-jsdoc` i `swagger-ui-express`: Generació de documentació.
-- `express`: Framework per a l'API.
-
-## Dependències de Desenvolupament
-- `typescript`: Suport per a TypeScript.
-- `@types/*`: Definicions de tipus per a biblioteques utilitzades.
+Desenvolupat per a l'examen de Minim 1 de EA (EETAC-UPC)
